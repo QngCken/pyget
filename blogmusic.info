@@ -1,0 +1,70 @@
+初次获取验证信息：
+$.ajax({
+		type: 'GET',
+		url: api_server + "/getfile.php?f=" + query + "&ref=" + escape(document.referrer),
+		dataType: 'json',				  				
+		success: function (res) {
+
+			file_id = res.file_id;
+			file_chk = res.file_chk;
+			userid = res.userid;
+		}
+});
+
+api_server = https://webapi.400gb.com
+query = userid-file_id
+document.referrer = 来源页（博客页面url）
+
+
+
+通过此url获取JSON中的下载地址：
+$.getJSON(api_server + "/get_file_url.php?uid=" + userid + "&fid=" + file_id + "&folder_id=" + 0 + "&file_chk=" + file_chk + "&mb=" + 0 + "&app=" + 0 + "&acheck=" + 1 + "&verifycode=" + ''+ '&rd=' + Math.random())
+
+userid, file_id在https://545c.com/file/{userid}-{file_id}中
+Math.random()随意值
+
+响应JSON，可获得downurl，直接下载：
+{
+	abort: function abort()​
+	always: function always()​
+	catch: function catch()​
+	done: function add()​
+	fail: function add()​
+	getAllResponseHeaders: function getAllResponseHeaders()​
+	getResponseHeader: function getResponseHeader()​
+	overrideMimeType: function overrideMimeType()​
+	pipe: function pipe()​
+	progress: function add()​
+	promise: function promise()
+​	
+	readyState: 4
+​	
+	responseJSON: {
+​​	
+		code: 200
+​​		
+		confirm_url: "https://doubleclick.ctfile.com/?adv&adimage&adimages&mod=cpv&act=confirm&uid=451352&fid=398838745&t=1569088416&g=4&ad=1&rc=0&adb=1&size=14344897&chk=f17e31c824089a22d3fae86c0f08bf44-14344897&k=6ea23dfc3c013c81a34f43840824ff29"
+​​		
+		downurl: "http://451352.ch1.ctc.data.tv002.com/down/a6c4f49ac5f21b061895e57807a5a221/%E8%B0%AD%E7%BB%B4%E7%BB%B4-%E3%80%8A%E6%94%80%E7%99%BB%E8%80%85%E3%80%8B%E8%B6%85%E5%93%81%E8%B4%A8MP3%E5%8D%95%E6%9B%B2.rar?cts=ot-f-D210A41A101A251F48cb3&ctp=210A41A101A251&ctt=1569110016&limit=1&spd=46000&ctk=a6c4f49ac5f21b061895e57807a5a221&chk=f17e31c824089a22d3fae86c0f08bf44-14344897&mtd=1"
+​​		
+		file_size: 14344897
+​​		
+		showvip: 1
+​​		
+		<prototype>: Object
+	}
+​	
+	responseText: "{\"showvip\":1,\"downurl\":\"http:\\/\\/451352.ch1.ctc.data.tv002.com\\/down\\/a6c4f49ac5f21b061895e57807a5a221\\/%E8%B0%AD%E7%BB%B4%E7%BB%B4-%E3%80%8A%E6%94%80%E7%99%BB%E8%80%85%E3%80%8B%E8%B6%85%E5%93%81%E8%B4%A8MP3%E5%8D%95%E6%9B%B2.rar?cts=ot-f-D210A41A101A251F48cb3&ctp=210A41A101A251&ctt=1569110016&limit=1&spd=46000&ctk=a6c4f49ac5f21b061895e57807a5a221&chk=f17e31c824089a22d3fae86c0f08bf44-14344897&mtd=1\",\"code\":200,\"file_size\":14344897,\"confirm_url\":\"https:\\/\\/doubleclick.ctfile.com\\/?adv&adimage&adimages&mod=cpv&act=confirm&uid=451352&fid=398838745&t=1569088416&g=4&ad=1&rc=0&adb=1&size=14344897&chk=f17e31c824089a22d3fae86c0f08bf44-14344897&k=6ea23dfc3c013c81a34f43840824ff29\"}"
+​	
+	setRequestHeader: function setRequestHeader()​
+	state: function state()
+​	
+	status: 200
+​	
+	statusCode: function statusCode()
+​	
+	statusText: "OK"
+​	
+	then: function then()​
+	<prototype>: Object
+}

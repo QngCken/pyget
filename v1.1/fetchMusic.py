@@ -56,10 +56,10 @@ def getURL(uid, fid, fchk):    #待定**kw可使用"kw.get(key) or default"
     durl = j.get('downurl')
     return durl
 
-def spider():
+def spider(path):
     for i in range(1, 2):
         for u, f in getMusic(getBlog(i)):
             fn, fc = getMSG(u, f)
-            pyget(getURL(u, f, fc), fname=fn).download()
+            pyget(getURL(u, f, fc), fname=fn, path=path).download()
 
-#spider()
+spider(path=r'C:\Users\15520\Music\blogmusic')

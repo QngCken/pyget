@@ -47,10 +47,12 @@ class pyget:
 
 
     def download(self):
-        finished = False
-        block = int(self.hdr.get('block') or 1024)      #获取block大小，默认 1 kB = 1024 bytes
+        if self.url is None:
+            return
         if self.doFile():
             return
+        finished = False
+        block = int(self.hdr.get('block') or 1024)      #获取block大小，默认 1 kB = 1024 bytes
         tmpFile = self.fN + self.t
         if self.support_continue():  # 支持断点续传
             try:

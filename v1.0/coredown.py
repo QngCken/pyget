@@ -47,6 +47,8 @@ class pyget:
 
 
     def download(self):
+        if self.url is None:
+            return
         finished = False
         block = int(self.hdr.get('block') or 1024)      #获取block大小，默认 1 kB = 1024 bytes
         if self.doFile():

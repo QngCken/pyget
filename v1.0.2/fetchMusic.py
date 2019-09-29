@@ -1,10 +1,12 @@
 #!/usr/bin/evn/python3
 # -*- coding: utf-8 -*-
-import re, requests, json, time
+import re, requests
 from random import random
 from coredown import pyget
-from decorator import test
+from decorat import test
 
+import urllib3
+urllib3.disable_warnings()
 
 #    ↓↓ 博客主页：http://blog.sina.com.cn/s/articlelist_6055728941_0_{{page}}.html
 #    ↓↓ 音乐子页：http://blog.sina.com.cn/s/blog_{{blogid}}.html
@@ -20,11 +22,12 @@ headers = {
     'Upgrade-Insecure-Requests': '1',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0',
 }
+
 def getHTML(url, i=1, n=0):
     global cookie
     headers['Referer'] = sinablog % i
     try:
-        h = requests.get(url, headers=headers, cookies=cookie)
+        h = requests.get(url, headers=headers, cookies=cookie, verify=False)
         h.encoding = 'utf-8'
         cookie = h.cookies
         return h.text
@@ -38,32 +41,30 @@ def getHTML(url, i=1, n=0):
             print('Connection Timeout WTF???')
             return ''
             # raise
-    
-    
-@test('getpage')
+  
 def getBlog(page=1):    #找到主博客下的资源博客
     blog = sinablog % page
     print('Start searching the page %d...' % page)
     html = getHTML(blog)
     reblog = r'(?is)<span class="atc_title">.*?href="(.*?)">.*?</a></span>'
     return re.finditer(reblog, html)  #返回一个迭代器
-@test('getmusic')
+
 def getMusic(mbs):    #找到资源博客下的城通网盘链接信息,返回迭代信息
     i = 1
     for mb in mbs:
         mblog = mb.group(1)
         mhtml = getHTML(mblog, i)
         i += 1
-        recity = r'(?is)<a href="(https://.*?/(\d+)-(\d+))".*?>\1</a>'
+        recity = r'(?is)<a href="(https?://.*?/(\d+)-(\d+))".*?>\1</a>'
         cityurl = re.search(recity, mhtml)
         _, uid, fid = cityurl.groups()
         yield uid, fid
 
 def getJSON(url, pms=None):
-    r = requests.get(url, params=pms, headers=headers)
+    r = requests.get(url, params=pms, headers=headers, verify=False)
     j = r.json()
     return j
-@test('getmsg')
+
 def getMSG(uid, fid, ref='', n=0):
     url = api_server + '/getfile.php'
     kvs = {'f': '%s-%s' % (uid, fid), 'ref': ref}
@@ -77,7 +78,7 @@ def getMSG(uid, fid, ref='', n=0):
         if j.get('code') == 200 and n < 2:
             return getMSG(uid, fid, n=n+1)
     return fn, fc
-@test('geturl')
+
 def getURL(uid, fid, fchk, n=0):    #待定**kw可使用"kw.get(key) or default"
     url = api_server + '/get_file_url.php'
     kvs = {'uid': uid, 'fid': fid, 'folder_id': 0, 'file_chk': fchk, 'mb': 0, 'app': 0, 'acheck': 1, 'verifycode': '', 'rd': random()}
@@ -89,7 +90,7 @@ def getURL(uid, fid, fchk, n=0):    #待定**kw可使用"kw.get(key) or default"
 
 def spider():
     path = r'C:\Users\15520\Music\blogmusic'
-    for i in range(5, 8):
+    for i in range(6, 10):
         for u, f in getMusic(getBlog(i)):
             fn, fc = getMSG(u, f)
             if (fn or fc) is None:      # j['code'] != 200
@@ -97,6 +98,7 @@ def spider():
                 continue
             r = pyget(getURL(u, f, fc), path, fname=fn).download()
             if r is False:
+                print('get', str(r), 'to stop the pyget')
                 return
 
 spider()

@@ -42,7 +42,7 @@ class pyget:
         pass
 
     def download(self, renewable=False):
-        if self.url is None:
+        if not self.url:
             print('Pyget with an empty url!')
             return
         if self.doFile():
@@ -99,24 +99,25 @@ class pyget:
                     finished = True
                     retry = False
                     os.remove(tmpFile)
-                    print('\n <%s> Download Finished!' % self.fN)
+                    print('\n<%s>\nDownload Finished!' % self.fN)
                 else:
-                    print('\nUnexpected suspension! Please retry again...')
-                spend = int(time.time() - start_t)
-                speed = int((size - self.size) / 1024 / spend)
-                print('Total Time: %ss, Download Speed: %sk/s\n' % (spend, speed))
+                    print('\nUnexpected size for file!')
+                spend = time.time() - start_t
+                speed = (size - self.size) / 1024 / spend
+                print('Total Time: %.1fs, Download Speed: %.1fk/s\n' % (spend, speed))
             except KeyboardInterrupt:
+                finished = False
                 retry = False
                 print("\nDownload pause.\n")
-            except:
-                print('\nUnexpected Error happend.\n')
+            except Exception as e:
+                print('\nUnexpected Error happend:\n', e)
             finally:                         
-                if not finished:   #发生意外中断，记录断点位置
+                if finished is False:   #发生意外中断，记录断点位置 类似while finished：pass
                     with open(tmpFile, 'w') as ftmp:
                         ftmp.write(str(size))
                     if retry:
                         print('Auto start to retry...')
-                        self.download(renewable)
+                        finished = self.download(renewable)
         return finished
 
 

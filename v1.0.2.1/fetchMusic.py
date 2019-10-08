@@ -22,6 +22,7 @@ headers = {
     'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
     'Upgrade-Insecure-Requests': '1',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0',
+    'Collection': 'Keep-alive'
 }
 
 def getHTML(url, i=1, n=0):
@@ -50,18 +51,18 @@ def getBlog(page=1):    #找到主博客下的资源博客
     reblog = r'(?is)<span class="atc_title">.*?href="(.*?)">.*?</a></span>'
     return re.finditer(reblog, html)  #返回一个迭代器
 
-def getMusic(mbs):    #找到资源博客下的城通网盘链接信息,返回迭代信息
-    i = 1
-    with open('file.txt', 'a+') as f:
-        for mb in mbs:
-            mblog = mb.group(1)
-            mhtml = getHTML(mblog, i)
-            i += 1
-            recity = r'(?is)<a href="(https?://.*?/(\d+)-(\d+))".*?>\1</a>'
-            cityurl = re.search(recity, mhtml)
+def getMusic(mbs, i=1):    #找到资源博客下的城通网盘链接信息,返回迭代信息
+    for mb in mbs:
+        mblog = mb.group(1)
+        mhtml = getHTML(mblog, i)
+        recity = r'(?is)<a href="(https?://.*?/(\d+)-(\d+))".*?>\1</a>'
+        cityurl = re.search(recity, mhtml)
+        if cityurl:
             _, uid, fid = cityurl.groups()
-            f.write(uid + '-' + fid + '\r\n')
             yield uid, fid
+        else:
+            with open('file.txt', 'a+') as f:
+                f.write(str(i) + ': ' + mblog + '\n')
 
 def getJSON(url, uid, fid, pms=None):
     global cki
@@ -96,7 +97,7 @@ def getMSG(uid, fid, ref='', n=0):
             return getMSG(uid, fid, n=n+1)
     return fn, fc
 
-def getURL(uid, fid, fchk, n=0):    #待定**kw可使用"kw.get(key) or default"
+def getURL(uid, fid, fchk, n=0):
     url = api_server + '/get_file_url.php'
     kvs = {'uid': uid, 'fid': fid, 'folder_id': 0, 'file_chk': fchk, 'mb': 0, 'app': 0, 'acheck': 1, 'verifycode': '', 'rd': random()}
     j = getJSON(url, uid, fid, kvs)
@@ -106,12 +107,16 @@ def getURL(uid, fid, fchk, n=0):    #待定**kw可使用"kw.get(key) or default"
     return durl
 
 def spider():
-    path = r'C:\Users\15520\Music\blogmusic'
-    for i in range(1, 62):
-        for u, f in getMusic(getBlog(i)):
+    path = r'G:\blogmusic'
+    for i in range(1, 64):
+        if i in list(range(2,23)):
+            continue
+        for u, f in getMusic(getBlog(i), i):
             fn, fc = getMSG(u, f)
             if (fn or fc) is None:      # j['code'] != 200
                 print('%s-%s is missing ...' % (u, f))
+                with open('file.txt', 'a+') as fl:
+                    fl.write(str(u) + '-' + str(f) + '\n')
                 continue
             if pyget('', path, fname=fn).doFile():
                 print('<%s> is existed' % fn)
@@ -120,5 +125,5 @@ def spider():
             if r is False:
                 print('get', str(r), 'to stop the pyget')
                 return
-
-spider()
+if __name__ == "__main__":
+    spider()

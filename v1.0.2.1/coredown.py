@@ -103,7 +103,7 @@ class pyget:
                 else:
                     print('\nUnexpected size for file!')
                 spend = time.time() - start_t
-                speed = (size - self.size) / 1024 / spend
+                speed = (size - self.size) / 1024 / spend if spend else 0
                 print('Total Time: %.1fs, Download Speed: %.1fk/s\n' % (spend, speed))
             except KeyboardInterrupt:
                 finished = False
@@ -120,6 +120,8 @@ class pyget:
                     if retry:
                         print('Auto start to retry...')
                         finished = self.download(renewable)
+        if size < 2048:
+            os.remove(self.fl)
         return finished
 
 

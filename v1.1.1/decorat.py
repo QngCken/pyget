@@ -1,6 +1,7 @@
 import functools
+
 def test(sth):
-    def dec(fn):
+    def decr(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kw):
             print(sth, 'start')
@@ -8,4 +9,4 @@ def test(sth):
             print(sth, 'ended')
             return r
         return wrapper
-    return dec
+    return decr
